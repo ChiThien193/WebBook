@@ -1,112 +1,207 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
+import  Header  from "./Header"; 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { confirmAlert } from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css';
 
-function Add() {
-  const [bookName, setBookName] = useState("");
-  const [bookCategory, setBookCategory] = useState("");
-  const [bookImage, setBookImage] = useState(null);
-  const [bookList, setBookList] = useState([]);
+
+
+const categoryCodes = {
+  "TLTT": "Tâm lý - Trinh thám",
+  "TLKH": "Khoa học",
+  "TLLS": "Lịch sử",
+};
+
+const CreateBook = () => {
+  const [book, setBook] = useState({
+    id: "",
+    name: "",
+    category: "",
+    price: "",
+    discount: "",
+    author: "",
+    publisher: "",
+    image: null,
+  });
 
   useEffect(() => {
-    fetchBookList();
-  }, []);
+    if (book.category) {
+      axios
+        .get(`http://localhost:5000/api/books/generate-id/${book.category}`)
+        .then(res => {
+          setBook(prev => ({ ...prev, id: res.data.id }));
+        })
+        .catch(err => console.log(err));
+    }
+  }, [book.category]);
 
-  const fetchBookList = () => {
-    fetch("http://localhost:5000/api/add")
-      .then((res) => res.json())
-      .then((data) => setBookList(data.items))
-      .catch((err) => console.error("Fetch error:", err));
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setBook({ ...book, [name]: value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleFileChange = (e) => {
+    setBook({ ...book, image: e.target.files[0] });
+  };
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-
-    const formData = new FormData();
-    formData.append("name", bookName);
-    formData.append("category", bookCategory);
-    if (bookImage) formData.append("image", bookImage);
-
-    const res = await fetch("http://localhost:5000/api/add", {
-      method: "POST",
-      body: formData,
+  
+    confirmAlert({
+      title: 'Xác nhận',
+      message: 'Bạn có chắc chắn muốn thêm sách này không?',
+      buttons: [
+        {
+          label: 'Có',
+          onClick: () => {
+            const formData = new FormData();
+            Object.entries(book).forEach(([key, value]) => {
+              formData.append(key, value);
+            });
+  
+            axios.post("http://localhost:5000/api/books", formData, {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+            })
+            .then(() => {
+              toast.success("Thêm sách thành công!");
+              setTimeout(() => window.location.reload(), 1000);
+            })
+            .catch(err => {
+              console.error(err);
+              toast.error("Có lỗi xảy ra khi thêm sách!");
+            });
+          }
+        },
+        {
+          label: 'Không',
+          onClick: () => toast.info("Đã hủy thao tác thêm sách.")
+        }
+      ]
     });
-
-    const data = await res.json();
-    alert(data.message);
-
-    setBookName("");
-    setBookCategory("");
-    setBookImage(null);
-    fetchBookList();
   };
+  
+  
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <h2 className="text-2xl font-bold mb-6">Thêm sách mới</h2>
-      <form
-        onSubmit={handleSubmit}
-        className="flex flex-col gap-4 max-w-md bg-white p-6 rounded-lg shadow"
-      >
-        <input
-          value={bookName}
-          onChange={(e) => setBookName(e.target.value)}
-          placeholder="Tên sách"
-          required
-          className="border rounded px-3 py-2"
-        />
-        <input
-          value={bookCategory}
-          onChange={(e) => setBookCategory(e.target.value)}
-          placeholder="Thể loại"
-          required
-          className="border rounded px-3 py-2"
-        />
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setBookImage(e.target.files[0])}
-          className="border rounded px-3 py-2"
-        />
-        <button
-          type="submit"
-          className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
-        >
-          Thêm sách
-        </button>
-      </form>
+    <>
+      <Header />
 
-      <div className="mt-10">
-        <h3 className="text-xl font-semibold mb-4">Danh sách sách hiện có:</h3>
-        {bookList.length === 0 ? (
-          <p className="text-gray-500">Chưa có sách nào.</p>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {bookList.map((book, index) => (
-              <div
-                key={index}
-                className="bg-white border rounded-lg shadow-sm p-2 text-center"
-              >
-                {book.image ? (
-                  <img
-                    src={`http://localhost:5000/uploads/${book.image}`}
-                    alt={book.name}
-                    className="w-24 h-32 object-cover mx-auto rounded"
-                  />
-                ) : (
-                  <div className="w-24 h-32 bg-gray-200 rounded flex items-center justify-center text-sm text-gray-500 mx-auto">
-                    Không có ảnh
-                  </div>
-                )}
-                <div className="mt-2">
-                <p className="text-sm font-medium truncate">{book.name}</p>
-                  <p className="text-xs text-gray-500">{book.category}</p>
-                </div>
-              </div>
-            ))}
+      <div className="container py-5">
+        <h2 className="text-center text-3xl font-bold mb-5">Thêm Sách Mới</h2>
+        <form onSubmit={handleSubmit} className="max-w-3xl mx-auto p-6 border border-gray-300 rounded-lg shadow-lg bg-white">
+          
+          <div className="mb-4">
+            <label htmlFor="id" className="block text-sm font-medium text-gray-700">ID (Tự động):</label>
+            <input type="text" id="id" value={book.id} readOnly className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" />
           </div>
-        )}
-      </div>
-    </div>
-  );
-}
 
-export default Add;
+          <div className="mb-4">
+            <label htmlFor="category" className="block text-sm font-medium text-gray-700">Phân loại:</label>
+            <select
+              id="category"
+              name="category"
+              value={book.category}
+              onChange={handleChange}
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option value="">--Chọn phân loại--</option>
+              {Object.entries(categoryCodes).map(([code, label]) => (
+                <option key={code} value={code}>{label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700">Tên sách:</label>
+            <input
+              id="name"
+              name="name"
+              value={book.name}
+              onChange={handleChange}
+              required
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+
+          <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="price" className="block text-sm font-medium text-gray-700">Giá:</label>
+              <input
+                type="number"
+                id="price"
+                name="price"
+                value={book.price}
+                onChange={handleChange}
+                required
+                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="discount" className="block text-sm font-medium text-gray-700">Giảm giá (%):</label>
+              <input
+                type="number"
+                id="discount"
+                name="discount"
+                value={book.discount}
+                onChange={handleChange}
+                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor="author" className="block text-sm font-medium text-gray-700">Tác giả:</label>
+            <input
+              id="author"
+              name="author"
+              value={book.author}
+              onChange={handleChange}
+              required
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor="publisher" className="block text-sm font-medium text-gray-700">Nhà xuất bản:</label>
+            <input
+              id="publisher"
+              name="publisher"
+              value={book.publisher}
+              onChange={handleChange}
+              required
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor="image" className="block text-sm font-medium text-gray-700">Ảnh bìa:</label>
+            <input
+              type="file"
+              accept="image/*"
+              id="image"
+              onChange={handleFileChange}
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+
+          <div className="mb-4 text-center">
+            <button
+              type="submit"
+              className="px-6 py-2 bg-indigo-600 text-white font-semibold rounded-md shadow-md hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50"
+            >
+              Thêm sách
+            </button>
+          </div>
+        </form>
+        <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
+      </div>
+    </>
+  );
+};
+
+export default CreateBook;
