@@ -13,7 +13,7 @@ export function DeletePage() {
 
   const fetchBooks = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/books");
+      const response = await axios.get("https://backend-web-book.onrender.com/api/books");
       setBooks(response.data);
     } catch (error) {
       console.error("Lỗi khi tải sách:", error);
@@ -22,7 +22,7 @@ export function DeletePage() {
 
   const deleteBook = async (id) => {
     try {
-      const response = await axios.delete(`http://localhost:5000/api/books/delete/${id}`);
+      const response = await axios.delete(`https://backend-web-book.onrender.com/api/books/delete/${id}`);
       if (response.status === 200) {
         setShowSuccessModal(true);
         fetchBooks();
@@ -119,7 +119,7 @@ export function DeletePage() {
                     <td className="px-4 py-2 border">
                       {book.image ? (
                         <img
-                          src={`http://localhost:5000${book.image}`}
+                          src={`https://backend-web-book.onrender.com${book.image}`}
                           alt={book.name}
                           className="w-20 h-24 object-cover rounded border"
                         />

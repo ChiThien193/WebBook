@@ -14,7 +14,7 @@ export function LoginForm() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:5000/api/login", {
+      const res = await axios.post("https://backend-web-book.onrender.com/api/login", {
         username,
         password,
       });
@@ -38,7 +38,7 @@ export function LoginForm() {
       return;
     }
     try {
-      await axios.post("http://localhost:5000/api/register", {
+      await axios.post("https://backend-web-book.onrender.com/api/register", {
         username,
         password,
       });
