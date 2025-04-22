@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import  Header  from "./Header"; 
+import Header from "./Header";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
-
-
 
 const categoryCodes = {
   "TLTT": "Tâm lý - Trinh thám",
@@ -29,7 +27,7 @@ const CreateBook = () => {
   useEffect(() => {
     if (book.category) {
       axios
-        .get(`http://localhost:5000/api/books/generate-id/${book.category}`)
+        .get(`https://backend-web-book.onrender.com/api/books/generate-id/${book.category}`)
         .then(res => {
           setBook(prev => ({ ...prev, id: res.data.id }));
         })
@@ -48,7 +46,7 @@ const CreateBook = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-  
+
     confirmAlert({
       title: 'Xác nhận',
       message: 'Bạn có chắc chắn muốn thêm sách này không?',
@@ -60,20 +58,20 @@ const CreateBook = () => {
             Object.entries(book).forEach(([key, value]) => {
               formData.append(key, value);
             });
-  
-            axios.post("http://localhost:5000/api/books", formData, {
+
+            axios.post("https://backend-web-book.onrender.com/api/books", formData, {
               headers: {
                 "Content-Type": "multipart/form-data",
               },
             })
-            .then(() => {
-              toast.success("Thêm sách thành công!");
-              setTimeout(() => window.location.reload(), 1000);
-            })
-            .catch(err => {
-              console.error(err);
-              toast.error("Có lỗi xảy ra khi thêm sách!");
-            });
+              .then(() => {
+                toast.success("Thêm sách thành công!");
+                setTimeout(() => window.location.reload(), 1000);
+              })
+              .catch(err => {
+                console.error(err);
+                toast.error("Có lỗi xảy ra khi thêm sách!");
+              });
           }
         },
         {
@@ -83,8 +81,6 @@ const CreateBook = () => {
       ]
     });
   };
-  
-  
 
   return (
     <>
@@ -93,7 +89,7 @@ const CreateBook = () => {
       <div className="container py-5">
         <h2 className="text-center text-3xl font-bold mb-5">Thêm Sách Mới</h2>
         <form onSubmit={handleSubmit} className="max-w-3xl mx-auto p-6 border border-gray-300 rounded-lg shadow-lg bg-white">
-          
+
           <div className="mb-4">
             <label htmlFor="id" className="block text-sm font-medium text-gray-700">ID (Tự động):</label>
             <input type="text" id="id" value={book.id} readOnly className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" />
