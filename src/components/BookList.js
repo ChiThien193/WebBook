@@ -127,7 +127,10 @@ const BookList = () => {
             const finalPrice = calculateDiscountedPrice(book.price, book.discount);
 
             return (
-              <div key={book._id} className="border rounded-xl p-4 shadow bg-white hover:shadow-lg transition">
+              <div
+                key={book._id}
+                className="border rounded-xl p-4 shadow bg-white hover:shadow-xl hover:scale-105 transform transition duration-300"
+              >
                 <div className="relative">
                   {book.image ? (
                     <img
@@ -147,8 +150,8 @@ const BookList = () => {
                   )}
                 </div>
 
-                <Link to={`/books/${book.id}`}>
-                  <h3 className="text-sm font-medium text-blue-600 hover:underline mt-2 line-clamp-2 min-h-[3em]">
+                <Link to={`/books/${book.id}`} className="block mt-2 no-underline hover:no-underline">
+                  <h3 className="text-base font-semibold text-gray-800 line-clamp-2 min-h-[3em]">
                     {book.name}
                   </h3>
                 </Link>

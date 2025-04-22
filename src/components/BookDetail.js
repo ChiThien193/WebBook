@@ -11,11 +11,12 @@ const BookDetail = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/api/books/${id}`)
+      .get(`https://backend-web-book.onrender.com/api/books/${id}`)
       .then((res) => {
         setBook(res.data);
 
-        axios.get(`http://localhost:5000/api/books/related/${res.data.category}`)
+        axios
+          .get(`https://backend-web-book.onrender.com/api/books/related/${res.data.category}`)
           .then((relatedRes) => {
             const filteredBooks = relatedRes.data.filter((b) => b._id !== res.data._id);
             setRelatedBooks(filteredBooks);
@@ -51,7 +52,7 @@ const BookDetail = () => {
           <div className="w-1/3">
             {book.image ? (
               <img
-                src={`http://localhost:5000${book.image}`}
+                src={`https://backend-web-book.onrender.com${book.image}`}
                 alt={book.name}
                 className="w-full h-auto object-contain"
               />
@@ -106,7 +107,7 @@ const BookDetail = () => {
                 <div className="h-40 flex items-center justify-center overflow-hidden mb-2">
                   {relatedBook.image ? (
                     <img
-                      src={`http://localhost:5000${relatedBook.image}`}
+                      src={`https://backend-web-book.onrender.com${relatedBook.image}`}
                       alt={relatedBook.name}
                       className="object-contain h-full"
                     />

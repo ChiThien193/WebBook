@@ -30,7 +30,7 @@ export function UpdatePage() {
 
   const fetchBooks = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/books");
+      const response = await axios.get("https://backend-web-book.onrender.com/api/books");
       setBooks(response.data);
     } catch (error) {
       console.error("Lỗi khi tải sách:", error);
@@ -42,7 +42,7 @@ export function UpdatePage() {
     setUpdatedBook({
       name: book.name,
       category: book.category || "",
-      id: book.id || "", // Đảm bảo ID có sẵn khi chỉnh sửa
+      id: book.id || "", 
       image: book.image || "",
       price: book.price || "",
       discount: book.discount || "",
@@ -51,7 +51,6 @@ export function UpdatePage() {
     });
   };
 
-  // Xử lý khi thay đổi thông tin sách
   const handleUpdateChange = (e) => {
     const { name, value } = e.target;
     setUpdatedBook((prev) => ({
@@ -59,10 +58,9 @@ export function UpdatePage() {
       [name]: value
     }));
 
-    // Khi phân loại thay đổi, gọi API để lấy ID tự động
     if (name === "category") {
       axios
-        .get(`http://localhost:5000/api/books/generate-id/${value}`)
+        .get(`https://backend-web-book.onrender.com/api/books/generate-id/${value}`)
         .then((res) => {
           setUpdatedBook((prev) => ({
             ...prev,
@@ -72,16 +70,14 @@ export function UpdatePage() {
         .catch((err) => console.log(err));
     }
 
-    // Khi thay đổi file ảnh, lưu lại ảnh đã chọn
     if (name === "image") {
       setUpdatedBook((prev) => ({
         ...prev,
-        image: e.target.files[0] // Lưu file ảnh đã chọn
+        image: e.target.files[0] 
       }));
     }
   };
 
-  // Xử lý khi submit cập nhật
   const handleUpdateSubmit = async () => {
     if (!updatedBook.name || !updatedBook.price || !updatedBook.author) {
       alert("Vui lòng điền đầy đủ thông tin!");
@@ -91,19 +87,19 @@ export function UpdatePage() {
     const formData = new FormData();
     formData.append("name", updatedBook.name);
     formData.append("category", updatedBook.category);
-    formData.append("id", updatedBook.id); // Gửi ID
+    formData.append("id", updatedBook.id); 
     formData.append("price", updatedBook.price);
     formData.append("discount", updatedBook.discount);
     formData.append("author", updatedBook.author);
     formData.append("publisher", updatedBook.publisher);
 
     if (updatedBook.image && typeof updatedBook.image !== "string") {
-      formData.append("image", updatedBook.image); // Thêm ảnh vào formData
+      formData.append("image", updatedBook.image); 
     }
 
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/books/update/${selectedBook._id}`,
+        `https://backend-web-book.onrender.com/api/books/update/${selectedBook._id}`,
         formData,
         {
           headers: {
@@ -115,20 +111,18 @@ export function UpdatePage() {
         fetchBooks();
         setSelectedBook(null);
         setShowConfirmModal(false);
-        toast.success("Cập nhật sách thành công!"); // Hiển thị thông báo thành công
+        toast.success("Cập nhật sách thành công!"); 
       }
     } catch (error) {
       console.error("Lỗi khi cập nhật sách:", error);
-      alert("❌ Lỗi khi cập nhật sách!");
+      alert(" Lỗi khi cập nhật sách!");
     }
   };
 
-  // Hiển thị modal xác nhận
   const handleConfirmUpdate = () => {
     setShowConfirmModal(true);
   };
 
-  // Hủy bỏ cập nhật
   const handleCancelUpdate = () => {
     setShowConfirmModal(false);
   };
@@ -141,22 +135,18 @@ export function UpdatePage() {
     fetchBooks();
   }, []);
 
-  // Lọc sách theo tên
   const filteredBooks = books.filter((book) =>
     book.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Phân trang: Lấy các sách cho trang hiện tại
   const indexOfLastBook = currentPage * itemsPerPage;
   const indexOfFirstBook = indexOfLastBook - itemsPerPage;
   const currentBooks = filteredBooks.slice(indexOfFirstBook, indexOfLastBook);
 
-  // Chuyển sang trang trước
   const paginatePrev = () => {
     setCurrentPage(currentPage - 1);
   };
 
-  // Chuyển sang trang sau
   const paginateNext = () => {
     setCurrentPage(currentPage + 1);
   };
@@ -199,7 +189,7 @@ export function UpdatePage() {
                     <td className="px-4 py-2 border">{book.name}</td>
                     <td className="px-4 py-2 border">
                       {book.image ? (
-                        <img src={`http://localhost:5000${book.image}`} alt={book.name} className="w-20 h-24 object-cover rounded border" />
+                        <img src={`https://backend-web-book.onrender.com${book.image}`} alt={book.name} className="w-20 h-24 object-cover rounded border" />
                       ) : "Không có ảnh"}
                     </td>
                     <td className="px-4 py-2 border">{book.price?.toLocaleString()}₫</td>
